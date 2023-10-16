@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Músicas</title>
+</head>
+
+<body>
+    <h1>Lista de Músicas</h1>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Música</th>
+            <th>Artista</th>
+            <th>Estilo</th>
+            <th>Ações</th>
+        </tr>
+        <% musicas.forEach(function(musica) { %>
+            <tr>
+                <td>
+                    <%= musica.id %>
+                </td>
+                <td>
+                    <%= musica.musica %>
+                </td>
+                <td>
+                    <%= musica.artista %>
+                </td>
+                <td>
+                    <%= musica.estilo %>
+                </td>
+                <td>
+                    <button onclick="atualizarMusica('<%= musica.id %>')">Atualizar</button>
+                    <button onclick="excluirMusica('<%= musica.id %>')">Excluir</button>
+                </td>
+            </tr>
+            <% }); %>
+    </table>
+
+    <h2>Adicionar Nova Música</h2>
+    <form action="/api/musicas" method="POST" id="adicionarMusicaForm">
+        <label for="musica">Música:</label>
+        <input type="text" name="musica" required>
+        <br>
+        <label for="artista">Artista:</label>
+        <input type="text" name="artista" required>
+        <br>
+        <label for="estilo">Estilo:</label>
+        <input type="text" name="estilo" required>
+        <br>
+        <input type="submit" value="Adicionar">
+    </form>
+
+
+    <script>
+        document.getElementById('adicionarMusicaForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api/musicas', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            const formData = new FormData(this);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            xhr.send(JSON.stringify(data));
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    window.location.reload();
+                }
+            };
+        });
+
+
+        function excluirMusica(id) {
+            if (confirm("Tem certeza de que deseja excluir esta música?")) {
+                const xhr = new XMLHttpRequest();
+                xhr.open('DELETE', `/api/musicas/${id}`, true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+
+                xhr.send();
+
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        window.location.reload();
+                    }
+                };
+            }
+        }
+
+
+        function atualizarMusica(id) {
+            const novaMusica = prompt("Digite o novo nome da música:");
+            const novoArtista = prompt("Digite o novo nome do artista:");
+            const novoEstilo = prompt("Digite o novo estilo da música:");
+
+            if (novaMusica && novoArtista && novoEstilo) {
+                const xhr = new XMLHttpRequest();
+                xhr.open('PUT', `/api/musicas/${id}`, true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+
+                const data = {
+                    musica: novaMusica,
+                    artista: novoArtista,
+                    estilo: novoEstilo
+                };
+
+                xhr.send(JSON.stringify(data));
+
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        window.location.reload();
+                    }
+                };
+            }
+        }
+    </script>
+
+</body>
+
+</html>
